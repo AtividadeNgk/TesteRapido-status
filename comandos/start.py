@@ -8,13 +8,20 @@ from telegram.ext import ContextTypes, ConversationHandler
 from modules.utils import is_admin
 
 def add_user_to_list(user, bot_id):
-   print(user)
-   print(bot_id)
-   users = manager.get_bot_users(bot_id)
-   print(users)
-   if not user in users:
-       users.append(user)
-       manager.update_bot_users(bot_id, users)
+    print(user)
+    print(bot_id)
+    users = manager.get_bot_users(bot_id)
+    print(users)
+    
+    # Registra no sistema de tracking
+    is_new = manager.register_user_tracking(user, bot_id)
+    print(f"[USER TRACKING] User {user} - É novo? {is_new}")
+    
+    if not user in users:
+        users.append(user)
+        manager.update_bot_users(bot_id, users)
+    
+    return is_new  # Retorna se é novo usuário
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
    # ADICIONAR FLAG PARA INDICAR QUE ESTÁ PROCESSANDO START
