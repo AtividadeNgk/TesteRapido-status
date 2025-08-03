@@ -415,17 +415,12 @@ def count_payments():
             conn.close()
 
 def create_payment(chat, plano, nome_plano, bot, status='idle', trans_id='false'):
-    conn = sqlite3.connect("data.db")
-    cursor = conn.cursor()
-    id  = count_payments()
-    cursor.execute(
-        "INSERT INTO PAYMENTS (id, trans_id, chat, plano, bot, status) VALUES (?, ?, ?, ?, ?, ?)",
-        (id, trans_id, chat, json.dumps(plano), bot, status,)
-    )
-    print('criei um pagamento')
-    conn.commit()
-    conn.close()
-    return id
+    """Cria pagamento verificando se é usuário novo"""
+    # Verifica se usuário é novo hoje
+    is_new_user = is_user_new_today(chat, bot)
+    
+    # Usa a nova função com tracking
+    return create_payment_with_tracking(chat, plano, nome_plano, bot, is_new_user, status, trans_id)
 
 
 
