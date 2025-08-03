@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, send_file, session, redirect, url_for
 import modules.manager as manager
 import asyncio, json, requests, datetime, time
 import mercadopago, os
+import sqlite3  # ADICIONE ESTA LINHA
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler, CallbackQueryHandler
