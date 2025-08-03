@@ -19,8 +19,8 @@ def inicialize_database():
             "group" TEXT,
             expiration TEXT
         )
-    """)
-    
+"""
+    )
     cur.execute('''
     CREATE TABLE IF NOT EXISTS USERS (
         id_user TEXT,
@@ -30,8 +30,8 @@ def inicialize_database():
         grupo TEXT
     )
     ''')
-    
-    cur.execute("""
+    cur.execute(
+        """
         CREATE TABLE IF NOT EXISTS PAYMENTS (
             id TEXT,
             trans_id TEXT,
@@ -40,35 +40,8 @@ def inicialize_database():
             bot TEXT,
             status TEXT
         )
-    """)
-    
-    # NOVA TABELA PARA RASTREAR USUÁRIOS
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS USER_TRACKING (
-            user_id TEXT,
-            bot_id TEXT,
-            first_start TEXT,
-            last_activity TEXT,
-            PRIMARY KEY (user_id, bot_id)
-        )
-    """)
-    
-    # ADICIONA COLUNAS NOVAS SE NÃO EXISTIREM
-    try:
-        cur.execute("ALTER TABLE PAYMENTS ADD COLUMN created_at TEXT DEFAULT (datetime('now', 'localtime'))")
-        print("✅ Coluna created_at adicionada em PAYMENTS")
-    except:
-        print("ℹ️ Coluna created_at já existe em PAYMENTS")
-    
-    try:
-        cur.execute("ALTER TABLE PAYMENTS ADD COLUMN is_from_new_user INTEGER DEFAULT 0")
-        print("✅ Coluna is_from_new_user adicionada em PAYMENTS")
-    except:
-        print("ℹ️ Coluna is_from_new_user já existe em PAYMENTS")
-    
-    conn.commit()
-    conn.close()
-    print("✅ Banco de dados inicializado com sucesso!")
+        """
+    )
 
 def count_bots():
     try:
