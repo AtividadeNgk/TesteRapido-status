@@ -42,7 +42,7 @@ def inicialize_database():
         )
     """)
     
-    # NOVA TABELA - ADICIONAR AQUI
+    # NOVA TABELA PARA RASTREAR USUÁRIOS
     cur.execute("""
         CREATE TABLE IF NOT EXISTS USER_TRACKING (
             user_id TEXT,
@@ -53,19 +53,22 @@ def inicialize_database():
         )
     """)
     
-    # ADICIONAR CAMPO is_from_new_user NA TABELA PAYMENTS SE NÃO EXISTIR
-    cur.execute("PRAGMA table_info(PAYMENTS)")
-    columns = [column[1] for column in cur.fetchall()]
-    
-    if 'created_at' not in columns:
+    # ADICIONA COLUNAS NOVAS SE NÃO EXISTIREM
+    try:
         cur.execute("ALTER TABLE PAYMENTS ADD COLUMN created_at TEXT DEFAULT (datetime('now', 'localtime'))")
-        conn.commit()
+        print("✅ Coluna created_at adicionada em PAYMENTS")
+    except:
+        print("ℹ️ Coluna created_at já existe em PAYMENTS")
     
-    if 'is_from_new_user' not in columns:
+    try:
         cur.execute("ALTER TABLE PAYMENTS ADD COLUMN is_from_new_user INTEGER DEFAULT 0")
-        conn.commit()
+        print("✅ Coluna is_from_new_user adicionada em PAYMENTS")
+    except:
+        print("ℹ️ Coluna is_from_new_user já existe em PAYMENTS")
     
+    conn.commit()
     conn.close()
+    print("✅ Banco de dados inicializado com sucesso!")
 
 def count_bots():
     try:
