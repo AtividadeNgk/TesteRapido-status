@@ -1143,6 +1143,45 @@ if __name__ == '__main__':
     print(f"URL configurada: {IP_DA_VPS}")
     
     manager.inicialize_database()
+    
+    # FORÇA CRIAÇÃO DA TABELA USER_TRACKING
+    print("🔄 Verificando tabelas do banco...")
+    conn = sqlite3.connect('data.db')
+    cur = conn.cursor()
+    
+    # Cria USER_TRACKING
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS USER_TRACKING (
+            user_id TEXT,
+            bot_id TEXT,
+            first_start TEXT,
+            last_activity TEXT,
+            PRIMARY KEY (user_id, bot_id)
+        )
+    """)
+    
+    # Adiciona colunas em PAYMENTS
+    try:
+        cur.execute("ALTER TABLE PAYMENTS ADD COLUMN created_at TEXT DEFAULT (datetime('now', 'localtime'))")
+    except:
+        pass
+    
+    try:
+        cur.execute("ALTER TABLE PAYMENTS ADD COLUMN is_from_new_user INTEGER DEFAULT 0")
+    except:
+        pass
+    
+    conn.commit()
+    
+    # Verifica se criou
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='USER_TRACKING'")
+    if cur.fetchone():
+        print("✅ Tabela USER_TRACKING verificada!")
+    else:
+        print("❌ Erro ao criar USER_TRACKING!")
+    
+    conn.close()
+    
     manager.create_recovery_tracking_table()
     initialize_all_registered_bots()
     start_register()
