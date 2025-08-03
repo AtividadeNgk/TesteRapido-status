@@ -469,21 +469,24 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     brasilia_tz = pytz.timezone('America/Sao_Paulo')
     now = datetime.now(brasilia_tz)
     
-    message = f"""📊 ESTATÍSTICAS DE HOJE ({now.strftime('%d/%m/%Y')})
+    message = f"""📊 <b>ESTATÍSTICAS DE HOJE ({now.strftime('%d/%m/%Y')})</b>
 
-━━  GERAL 
+━━  <b>GERAL</b>
+
 👥 Novos usuários: {new_users_today}
 💰 Total de vendas: {sales_data['total_sales']}
 💸 Faturamento total: R$ {sales_data['total_revenue']:.2f}
 👤 Usuários totais: {total_users}
 
-━━  CONVERSÃO HOJE
+━━  <b>CONVERSÃO HOJE</b>
+
 💰 Vendas (novos): {sales_data['new_user_sales']}
 💵 Faturamento (novos): R$ {sales_data['new_user_revenue']:.2f}
 💳 PIX gerados (novos): {sales_data['new_user_pix']}
 📈 Taxa conversão (novos): {conversion_new:.1f}%
 
-━━  PERFORMANCE 
+━━  <b>PERFORMANCE</b>
+
 💳 PIX gerados total: {sales_data['total_pix']}
 📊 Taxa conversão geral: {conversion_total:.1f}%
 
