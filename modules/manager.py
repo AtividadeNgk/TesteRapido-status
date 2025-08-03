@@ -1046,6 +1046,8 @@ def set_registro_owner(owner_id):
 
 # FUNÇÕES PARA O SISTEMA DE STATUS - ADICIONAR NO FINAL DO ARQUIVO
 
+# FUNÇÕES PARA O SISTEMA DE STATUS - ADICIONAR NO FINAL DO ARQUIVO
+
 def register_user_tracking(user_id, bot_id):
     """Registra um novo usuário ou atualiza atividade"""
     conn = sqlite3.connect("data.db")
