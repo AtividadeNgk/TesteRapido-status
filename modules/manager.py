@@ -1097,11 +1097,18 @@ def get_new_users_today(bot_id):
     conn = sqlite3.connect("data.db")
     cursor = conn.cursor()
     
+    # Pega a data de hoje no horário de Brasília
+    from datetime import datetime
+    import pytz
+    
+    brasilia_tz = pytz.timezone('America/Sao_Paulo')
+    hoje = datetime.now(brasilia_tz).strftime('%Y-%m-%d')
+    
     cursor.execute("""
         SELECT COUNT(*) FROM USER_TRACKING 
         WHERE bot_id = ? 
-        AND DATE(first_start) = DATE('now', 'localtime')
-    """, (bot_id,))
+        AND DATE(first_start) = ?
+    """, (bot_id, hoje))
     
     count = cursor.fetchone()[0]
     conn.close()
@@ -1126,14 +1133,23 @@ def get_sales_today(bot_id):
     conn = sqlite3.connect("data.db")
     cursor = conn.cursor()
     
+    # Pega a data de hoje no horário de Brasília
+    from datetime import datetime
+    import pytz
+    
+    brasilia_tz = pytz.timezone('America/Sao_Paulo')
+    hoje = datetime.now(brasilia_tz).strftime('%Y-%m-%d')
+
+    print(f"[DEBUG STATUS] Buscando dados do dia: {hoje}")  # ADICIONE ISTO
+    
     # Total de vendas hoje
     cursor.execute("""
         SELECT COUNT(*), COALESCE(SUM(CAST(json_extract(plano, '$.value') AS REAL)), 0)
         FROM PAYMENTS 
         WHERE bot = ? 
         AND status = 'finished'
-        AND DATE(created_at) = DATE('now', 'localtime')
-    """, (bot_id,))
+        AND DATE(created_at) = ?
+    """, (bot_id, hoje))
     
     total_sales, total_revenue = cursor.fetchone()
     
@@ -1144,8 +1160,8 @@ def get_sales_today(bot_id):
         WHERE bot = ? 
         AND status = 'finished'
         AND is_from_new_user = 1
-        AND DATE(created_at) = DATE('now', 'localtime')
-    """, (bot_id,))
+        AND DATE(created_at) = ?
+    """, (bot_id, hoje))
     
     new_user_sales, new_user_revenue = cursor.fetchone()
     
@@ -1154,8 +1170,8 @@ def get_sales_today(bot_id):
         SELECT COUNT(*)
         FROM PAYMENTS 
         WHERE bot = ? 
-        AND DATE(created_at) = DATE('now', 'localtime')
-    """, (bot_id,))
+        AND DATE(created_at) = ?
+    """, (bot_id, hoje))
     
     total_pix = cursor.fetchone()[0]
     
@@ -1165,8 +1181,8 @@ def get_sales_today(bot_id):
         FROM PAYMENTS 
         WHERE bot = ? 
         AND is_from_new_user = 1
-        AND DATE(created_at) = DATE('now', 'localtime')
-    """, (bot_id,))
+        AND DATE(created_at) = ?
+    """, (bot_id, hoje))
     
     new_user_pix = cursor.fetchone()[0]
     
