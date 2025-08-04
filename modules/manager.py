@@ -1209,10 +1209,18 @@ def create_payment_with_tracking(chat, plano, nome_plano, bot, is_new_user, stat
     cursor = conn.cursor()
     id = count_payments()
     
+    # USA HORÁRIO DE BRASÍLIA
+    from datetime import datetime
+    import pytz
+    brasilia_tz = pytz.timezone('America/Sao_Paulo')
+    now = datetime.now(brasilia_tz).strftime('%Y-%m-%d %H:%M:%S')
+    
+    print(f"[PAYMENT] Criando pagamento - User: {chat}, Bot: {bot}, Is New: {is_new_user}, Time: {now}")
+    
     cursor.execute("""
         INSERT INTO PAYMENTS (id, trans_id, chat, plano, bot, status, created_at, is_from_new_user)
-        VALUES (?, ?, ?, ?, ?, ?, datetime('now', 'localtime'), ?)
-    """, (id, trans_id, chat, json.dumps(plano), bot, status, 1 if is_new_user else 0))
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (id, trans_id, chat, json.dumps(plano), bot, status, now, 1 if is_new_user else 0))
     
     conn.commit()
     conn.close()
