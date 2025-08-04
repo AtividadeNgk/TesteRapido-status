@@ -1056,7 +1056,12 @@ def register_user_tracking(user_id, bot_id):
     """, (user_id, bot_id))
     
     result = cursor.fetchone()
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # USA HORÁRIO DE BRASÍLIA
+    from datetime import datetime
+    import pytz
+    brasilia_tz = pytz.timezone('America/Sao_Paulo')
+    now = datetime.now(brasilia_tz).strftime('%Y-%m-%d %H:%M:%S')
     
     if result:
         # Usuário existe - atualiza última atividade
