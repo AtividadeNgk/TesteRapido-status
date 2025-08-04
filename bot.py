@@ -448,6 +448,12 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     bot_id = context.bot_data['id']
     
+    # DEBUG E CORREÇÃO
+    print(f"\n[STATUS DEBUG] Bot ID: {bot_id}")
+    manager.fix_old_timestamps(bot_id)  # Corrige timestamps antigos
+    manager.debug_user_tracking(bot_id)
+    manager.debug_payments_today(bot_id)
+    
     # Busca todas as estatísticas
     new_users_today = manager.get_new_users_today(bot_id)
     total_users = manager.get_total_users(bot_id)
