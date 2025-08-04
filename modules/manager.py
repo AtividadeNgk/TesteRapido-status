@@ -1212,3 +1212,125 @@ def create_payment_with_tracking(chat, plano, nome_plano, bot, is_new_user, stat
     conn.commit()
     conn.close()
     return id
+
+# FUNÇÃO 1: Debug do user tracking
+def debug_user_tracking(bot_id):
+    """Debug completo do user tracking"""
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor()
+    
+    # Mostra todos os usuários do bot
+    cursor.execute("""
+        SELECT user_id, first_start, last_activity 
+        FROM USER_TRACKING 
+        WHERE bot_id = ?
+        ORDER BY first_start DESC
+        LIMIT 10
+    """, (bot_id,))
+    
+    users = cursor.fetchall()
+    
+    print("\n=== DEBUG USER TRACKING ===")
+    print(f"Bot ID: {bot_id}")
+    
+    from datetime import datetime
+    import pytz
+    brasilia_tz = pytz.timezone('America/Sao_Paulo')
+    hoje = datetime.now(brasilia_tz).strftime('%Y-%m-%d')
+    print(f"Data de hoje (Brasília): {hoje}")
+    
+    for user in users:
+        print(f"User: {user[0]}, First: {user[1]}, Last: {user[2]}")
+    
+    # Conta quantos são de hoje
+    cursor.execute("""
+        SELECT COUNT(*) 
+        FROM USER_TRACKING 
+        WHERE bot_id = ? 
+        AND DATE(first_start) = ?
+    """, (bot_id, hoje))
+    
+    hoje_count = cursor.fetchone()[0]
+    print(f"\nUsuários de hoje: {hoje_count}")
+    
+    conn.close()
+
+# FUNÇÃO 2: Debug dos pagamentos
+def debug_payments_today(bot_id):
+    """Debug para ver o que está acontecendo com os pagamentos"""
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor()
+    
+    # Verifica todos os pagamentos do bot
+    cursor.execute("""
+        SELECT id, created_at, status, is_from_new_user,
+               json_extract(plano, '$.value') as value
+        FROM PAYMENTS 
+        WHERE bot = ?
+        ORDER BY id DESC
+        LIMIT 10
+    """, (bot_id,))
+    
+    payments = cursor.fetchall()
+    
+    print("\n=== DEBUG PAYMENTS ===")
+    print(f"Bot ID: {bot_id}")
+    
+    from datetime import datetime
+    import pytz
+    brasilia_tz = pytz.timezone('America/Sao_Paulo')
+    hoje = datetime.now(brasilia_tz).strftime('%Y-%m-%d')
+    print(f"Data de hoje: {hoje}")
+    
+    for p in payments:
+        print(f"ID: {p[0]}, Created: {p[1]}, Status: {p[2]}, NewUser: {p[3]}, Value: {p[4]}")
+    
+    # Verifica quantos são de hoje
+    cursor.execute("""
+        SELECT COUNT(*) 
+        FROM PAYMENTS 
+        WHERE bot = ? 
+        AND DATE(created_at) = ?
+    """, (bot_id, hoje))
+    
+    hoje_count = cursor.fetchone()[0]
+    print(f"\nPagamentos de hoje: {hoje_count}")
+    
+    conn.close()
+
+# FUNÇÃO 3: Corrigir timestamp dos registros antigos
+def fix_old_timestamps(bot_id):
+    """Corrige timestamps antigos que possam estar com problema"""
+    conn = sqlite3.connect("data.db")
+    cursor = conn.cursor()
+    
+    from datetime import datetime
+    import pytz
+    brasilia_tz = pytz.timezone('America/Sao_Paulo')
+    hoje = datetime.now(brasilia_tz).strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Corrige USER_TRACKING sem timestamp
+    cursor.execute("""
+        UPDATE USER_TRACKING 
+        SET first_start = ?, last_activity = ?
+        WHERE bot_id = ? 
+        AND (first_start IS NULL OR first_start = '')
+    """, (hoje, hoje, bot_id))
+    
+    users_fixed = cursor.rowcount
+    
+    # Corrige PAYMENTS sem timestamp
+    cursor.execute("""
+        UPDATE PAYMENTS 
+        SET created_at = ?
+        WHERE bot = ? 
+        AND (created_at IS NULL OR created_at = '')
+    """, (hoje, bot_id))
+    
+    payments_fixed = cursor.rowcount
+    
+    conn.commit()
+    conn.close()
+    
+    if users_fixed > 0 or payments_fixed > 0:
+        print(f"✅ Corrigidos: {users_fixed} usuários, {payments_fixed} pagamentos")
