@@ -419,6 +419,7 @@ def create_payment(chat, plano, nome_plano, bot, status='idle', trans_id='false'
     """Cria pagamento verificando se é usuário novo"""
     # Verifica se usuário é novo hoje
     is_new_user = is_user_new_today(chat, bot)
+    print(f"[CREATE_PAYMENT] User: {chat}, Is New Today: {is_new_user}")
     
     # Usa a nova função com tracking
     return create_payment_with_tracking(chat, plano, nome_plano, bot, is_new_user, status, trans_id)
@@ -1088,15 +1089,29 @@ def is_user_new_today(user_id, bot_id):
     conn = sqlite3.connect("data.db")
     cursor = conn.cursor()
     
+    # USA HORÁRIO DE BRASÍLIA
+    from datetime import datetime
+    import pytz
+    brasilia_tz = pytz.timezone('America/Sao_Paulo')
+    hoje = datetime.now(brasilia_tz).strftime('%Y-%m-%d')
+    
     cursor.execute("""
         SELECT first_start FROM USER_TRACKING 
         WHERE user_id = ? AND bot_id = ?
-        AND DATE(first_start) = DATE('now', 'localtime')
     """, (user_id, bot_id))
     
     result = cursor.fetchone()
-    conn.close()
-    return result is not None
+    
+    if result:
+        # Extrai apenas a data (ignora a hora)
+        first_start_date = result[0].split(' ')[0]
+        is_new = (first_start_date == hoje)
+        print(f"[IS_NEW_TODAY] User: {user_id}, First: {first_start_date}, Hoje: {hoje}, Is New: {is_new}")
+        return is_new
+    
+    # Se não encontrou o usuário, considera como novo
+    print(f"[IS_NEW_TODAY] User: {user_id} não encontrado no tracking")
+    return True
 
 def get_new_users_today(bot_id):
     """Conta novos usuários de hoje"""
