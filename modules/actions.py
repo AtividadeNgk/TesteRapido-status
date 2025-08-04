@@ -331,7 +331,9 @@ async def confirmar_plano(update: Update, context: CallbackContext):
         
         if orderbump:
             # Se tem order bump, mostra a oferta primeiro
+            print(f"[CONFIRMAR_PLANO] Criando payment para orderbump - User: {query.from_user.id}, Bot: {context.bot_data['id']}")
             payment_id = manager.create_payment(str(query.from_user.id), plano, plano['name'], context.bot_data['id'])
+            print(f"[CONFIRMAR_PLANO] Payment criado com ID: {payment_id}")
             
             keyboard = [
                 [
@@ -374,7 +376,10 @@ async def confirmar_plano(update: Update, context: CallbackContext):
                 )
         else:
             # Se não tem order bump, segue o fluxo normal
+            print(f"[CONFIRMAR_PLANO] Criando payment normal - User: {query.from_user.id}, Bot: {context.bot_data['id']}")
             payment_id = manager.create_payment(str(query.from_user.id), plano, plano['name'], context.bot_data['id'])
+            print(f"[CONFIRMAR_PLANO] Payment criado com ID: {payment_id}")
+            
             keyboard = [
                 [InlineKeyboardButton('💠 Pagar via PIX 💠', callback_data=f'pagar_{payment_id}')]
             ]
