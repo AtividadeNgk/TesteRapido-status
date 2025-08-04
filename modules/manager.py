@@ -1,5 +1,6 @@
 import json, sqlite3, datetime, requests
 from datetime import datetime, timedelta
+import pytz
 
 def inicialize_database():
     conn = sqlite3.connect('data.db')
